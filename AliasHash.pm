@@ -8,7 +8,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw( allkeys );
 
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 #### constants
 
@@ -54,7 +54,9 @@ sub TIEHASH {
 sub FETCH {
 	my($self, $key) = @_;
 	$key = $self->realkey($key) if $self->is_alias($key);
-	$key = $self->[_JOLLY] if not $self->is_key($key) and defined $self->[_JOLLY];
+	$key = $self->[_JOLLY] 
+		if not $self->is_key($key) 
+		   and defined $self->[_JOLLY];
 	return $self->[_HASH]->{$key};
 }
 
@@ -90,8 +92,8 @@ sub NEXTKEY {
 
 sub EXISTS {
 	my($self, $key) = @_;
-	return $self->is_key($key)
-	or     $self->is_alias($key);
+	return ( $self->is_key($key)
+	or       $self->is_alias($key) );
 }
 
 sub DELETE {
@@ -134,7 +136,11 @@ sub remove_alias {
 	my($self, $alias) = @_;
 	my $key = $self->realkey( $alias );
 	delete ${ $self->[_ALIAS] }{$alias};
-	splice( @{ $self->[_ALIAS_REV]->{$key} }, $self->[_ALIAS_REV_IDX]->{$alias}, 1 );
+	splice( 
+		@{ $self->[_ALIAS_REV]->{$key} }, 
+		$self->[_ALIAS_REV_IDX]->{$alias}, 
+		1 
+	);
 	delete ${ $self->[_ALIAS_REV_IDX] }{$alias};
 }
 
@@ -241,7 +247,7 @@ by keys() and each():
   use Tie::AliasHash;
   tie %hash, 'Tie::AliasHash';
   tied(%hash)->add_alias( 'foo', 'bar' );
-  foreach $key (keys %hash) { print "$key\n"; } # prints 'foo'
+  foreach $k (keys %hash) { print "$k\n"; } # prints 'foo'
 
 To get the 'real' keys and the aliases together, use the C<allkeys>
 function:
@@ -249,7 +255,7 @@ function:
   use Tie::AliasHash;
   tie %hash, 'Tie::AliasHash';
   tied(%hash)->add_alias( 'foo', 'bar' );
-  foreach $key (tied(%hash)->allkeys) { print "$key\n"; } # prints 'foo' and 'bar'
+  foreach $k (tied(%hash)->allkeys) { print "$k\n"; } # prints 'foo' and 'bar'
 
 You can create alias keys with 3 methods:
 
@@ -303,7 +309,9 @@ to your main namespace, so that it can be used like the builtin C<keys>.
 
   use Tie::AliasHash 'allkeys';
   tie %hash, 'Tie::AliasHash';
-  foreach $key (allkeys %hash) { print "$key\n"; }
+  foreach $k (allkeys %hash) { print "$k\n"; }
+
+But see L<CAVEATS> below for important information about C<allkeys>.
 
 =head2 METHODS
 
@@ -504,6 +512,10 @@ keys and values.
 =head1 HISTORY
 
 =over 4
+
+=item v1.01 (26 Jun 2003)
+
+Fixed a bug in the EXISTS sub, now works as documented (thanks wk)
 
 =item v1.00 (07 Mar 2001)
 

@@ -1,6 +1,6 @@
 use strict;
 use Test;
-BEGIN { plan tests => 22 }
+BEGIN { plan tests => 24 }
 
 use vars qw( $loaded $test %hash $eq @keys );
 
@@ -47,6 +47,16 @@ $hash{2} = 2;
 ok(
 	join( ", ", @keys ), "1, 2, I",
 	"keys",
+);
+
+#### exists
+ok(
+	exists($hash{1}), 1,
+	"exists (on key)",
+);
+ok(
+	exists($hash{one}), 1,
+	"exists (on alias)",
 );
 
 #### allkeys method
