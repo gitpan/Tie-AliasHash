@@ -1,0 +1,5 @@
+AliasHash.pm
+Makefile.PL
+MANIFEST
+README
+t/AliasHash.t
